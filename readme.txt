@@ -28,3 +28,4 @@ Heavily Modified from original plugin by Matt Curry (http://www.pseudocoder.com)
 Rewrote as a static class as only one instance is needed. 
 Rewrote to use short codes rather than a filter. 
 Cleaned up code and organized a bit better. 
+Allowed ttl as a configurable setting. 
