@@ -22,3 +22,9 @@ Heavily Modified from original plugin by Matt Curry (http://www.pseudocoder.com)
 1. Upload `GitHub_Code_Viewer.php` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Use the shortcode [github_cv url='<URL TO FILE ON GITHUB>'] in your post.
+
+== Changelog ==
+2.0 
+Rewrote as a static class as only one instance is needed. 
+Rewrote to use short codes rather than a filter. 
+Cleaned up code and organized a bit better. 
