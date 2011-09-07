@@ -13,7 +13,7 @@ Author URI: http://spf13.com
 class GitHub_Code_Viewer {
 	static $db;
 	static $ttl = '1 day';
-	static $table = "github_code_cache";
+	static $table = "";
 	static $cache = array();
 
 	function init() {
@@ -45,17 +45,13 @@ class GitHub_Code_Viewer {
 
 
 	function install() {
-		$result = self::$db->query("CREATE TABLE IF NOT EXISTS `{self::$table}` (
-			`id` int(10) unsigned NOT NULL auto_increment,
-			`url` text NOT NULL,
-			`code` text NOT NULL,
-			`updated` datetime NOT NULL default '0000-00-00 00:00:00',
-			PRIMARY KEY  (`id`)
-		)");
+		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` ( `id` int(10) unsigned NOT NULL auto_increment, `url` text NOT NULL, `code` text NOT NULL, `updated` datetime NOT NULL default '0000-00-00 00:00:00', PRIMARY KEY  (`id`))", self::$table);
+		$result = self::$db->query($sql) or die(mysql_error());
 	}
 
 	function uninstall() {
-		$result = self::$db->query("DROP TABLE IF EXISTS `{self::$table}`");
+		$sql = sprintf("DROP TABLE IF EXISTS `%s`", self::$table);
+		$result = self::$db->query($sql) or die(mysql_error());
 	}
 
 
@@ -65,9 +61,9 @@ class GitHub_Code_Viewer {
 		if (isset(self::$cache[$url])) {
 			$code = self::$cache[$url];
 		} else {
-			$code = wp_remote_fopen($url . '?raw=true');
+			$code = file_get_contents($url . '?raw=true');
 			if ($code == '') {
-				return 'You need cURL installed to use GitHub_Code_Viewer';
+				return 'Can not find code at url : ' . $url;
 			}
 			$code = str_replace('<', '&lt;', $code);
 			self::__setCache($url, $code);
@@ -82,11 +78,15 @@ class GitHub_Code_Viewer {
 			$ttl = self::$ttl;
 		}
 
-		$sql = sprintf('SELECT * FROM `%s`
-			WHERE url IN ("%s")',
-				self::$table,
-				implode('", "', $urls));
-
+		if (is_array($urls)) 
+		{
+		$sql = sprintf('SELECT * FROM `%s` WHERE url IN ("%s")', self::$table, implode('", "', $urls));
+		}
+		else
+		{
+			$sql = sprintf('SELECT * FROM `%s` WHERE url IN ("%s")', self::$table, $urls);
+		}
+		
 		$results = self::$db->get_results($sql, ARRAY_A);
 		if ($results) {
 			$old = array();
